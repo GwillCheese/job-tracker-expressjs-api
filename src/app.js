@@ -163,6 +163,35 @@ app.get("/jobs", authMiddleware, async (req, res) => {
   }
 });
 
+// GET a single job by ID (with ownership check)
+app.get("/jobs/:id", authMiddleware, async (req, res) => {
+  const jobId = parseInt(req.params.id);
+
+  if (isNaN(jobId)) {
+    return res.status(400).json({ message: "Invalid job ID" });
+  }
+
+  try {
+    const job = await prisma.application.findUnique({
+      where: { id: jobId },
+    });
+
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    // Ownership check
+    if (job.userId !== req.userId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    res.json(job);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
