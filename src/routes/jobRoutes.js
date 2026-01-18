@@ -2,12 +2,12 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
 const { getJobById } = require("../controllers/jobController");
-const { 
-    
-    createJob, 
+const {
+
+    createJob,
     getJobs,
-    getJobById, 
-    updateJob, 
+    getJobById,
+    updateJob,
     deleteJob
 } = require("../controllers/jobController");
 
