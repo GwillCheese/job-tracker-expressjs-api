@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
-const { getJobById } = require("../controllers/jobController");
 const {
-
     createJob,
     getJobs,
     getJobById,
