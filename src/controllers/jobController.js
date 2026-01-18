@@ -34,13 +34,68 @@ const createJob = async (req, res) => {
 };
 
 const getJobs = async (req, res) => {
-try{
-  const jobs = await prisma.application.findMany({
-    where: { userId: req.userId },
-  });
+  try {
+    const { page = 1, limit = 10, status, companyName, jobTitle } = req.query;
 
-  res.json(jobs);
-} catch (err) {
+    // Validate and convert pagination parameters
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
+    if (isNaN(pageNum) || pageNum < 1) {
+      return res.status(400).json({ message: "Page must be a positive integer" });
+    }
+
+    if (isNaN(limitNum) || limitNum < 1) {
+      return res.status(400).json({ message: "Limit must be a positive integer" });
+    }
+
+    // Enforce maximum limit
+    const MAX_LIMIT = 100;
+    const take = Math.min(limitNum, MAX_LIMIT);
+    const skip = (pageNum - 1) * take;
+
+    // Build filter object
+    const filter = { userId: req.userId };
+
+    // Validate and add status filter
+    if (status) {
+      const allowedStatuses = ["Applied", "Interview", "Rejected", "Offer"];
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+      }
+      filter.status = status;
+    }
+
+    // Add search filters (case-insensitive partial match)
+    if (companyName) {
+      filter.companyName = { contains: companyName, mode: "insensitive" };
+    }
+    if (jobTitle) {
+      filter.jobTitle = { contains: jobTitle, mode: "insensitive" };
+    }
+
+    // Get total count for pagination metadata
+    const total = await prisma.application.count({ where: filter });
+
+    // Fetch jobs with pagination and ordering
+    const jobs = await prisma.application.findMany({
+      where: filter,
+      skip,
+      take,
+      orderBy: { createdAt: "desc" }, // newest first
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(total / take);
+
+    res.json({
+      page: pageNum,
+      limit: take,
+      total,
+      totalPages,
+      data: jobs,
+    });
+  } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
