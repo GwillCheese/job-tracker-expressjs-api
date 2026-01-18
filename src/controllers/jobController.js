@@ -4,6 +4,19 @@ const createJob = async (req, res) => {
     try{
   const { companyName, jobTitle, status } = req.body;
 
+  // Required fields
+  if (!companyName || !jobTitle || !status) {
+    return res.status(400).json({
+      message: "companyName, jobTitle, and status are required",
+    });
+  }
+
+  // Status allowed values
+  const allowedStatuses = ["Applied", "Interview", "Rejected", "Offer"];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status value" });
+  }
+
   const job = await prisma.application.create({
     data: {
       companyName,
@@ -69,9 +82,24 @@ const updateJob = async (req, res) => {
     if (!job) return res.status(404).json({ message: "Job not found" });
     if (job.userId !== req.userId) return res.status(403).json({ message: "Access denied" });
 
+    const data = {};
+    if (companyName) data.companyName = companyName;
+    if (jobTitle) data.jobTitle = jobTitle;
+    if (status) {
+      const allowedStatuses = ["Applied", "Interview", "Rejected", "Offer"];
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+      }
+      data.status = status;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return res.status(400).json({ message: "Nothing to update" });
+    }
+
     const updatedJob = await prisma.application.update({
       where: { id: jobId },
-      data: { companyName, jobTitle, status },
+      data,
     });
 
     res.json(updatedJob);
