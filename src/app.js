@@ -7,8 +7,7 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
 app.use(cors({
-  origin: '*', // Allow all origins
-  credentials: true
+  origin: '*' // Allow all origins
 }));
 
 app.use(express.json());
@@ -26,7 +25,7 @@ app.get("/", (req, res) => {
         create: "POST /jobs",
         getAll: "GET /jobs",
         getById: "GET /jobs/:id",
-        update: "PUT /jobs/:id",
+        update: "PATCH /jobs/:id",
         delete: "DELETE /jobs/:id"
       }
     }

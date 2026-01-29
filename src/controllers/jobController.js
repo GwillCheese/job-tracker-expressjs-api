@@ -130,6 +130,10 @@ const updateJob = async (req, res, next) => {
     const jobId = Number(req.params.id);
     const { companyName, jobTitle, status } = req.body;
 
+    if (isNaN(jobId)) {
+      return res.status(400).json({ message: "Invalid job ID" });
+    }
+
     const job = await prisma.application.findUnique({ where: { id: jobId } });
     if (!job) return res.status(404).json({ message: "Job not found" });
     if (job.userId !== req.userId) return res.status(403).json({ message: "Access denied" });
@@ -163,6 +167,10 @@ const updateJob = async (req, res, next) => {
 const deleteJob = async (req, res, next) => {
   try {
     const jobId = Number(req.params.id);
+
+    if (isNaN(jobId)) {
+      return res.status(400).json({ message: "Invalid job ID" });
+    }
 
     const job = await prisma.application.findUnique({ where: { id: jobId } });
     if (!job) return res.status(404).json({ message: "Job not found" });
