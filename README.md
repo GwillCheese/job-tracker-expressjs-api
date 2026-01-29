@@ -52,4 +52,10 @@ Authorization: Bearer <token>
 - `DELETE /jobs/:id`
 
 ## Deployed API
-Production URL: `https://job-tracker-api-production-dfd7.up.railway.app/`
+
+⚠️ **Railway deployment deprecated**  
+The Railway deployment below will expire after the trial period. For cost efficiency, the backend has been migrated to Next.js API routes and deployed with the frontend on Vercel.
+
+- Legacy Railway URL (will expire): `https://job-tracker-api-production-dfd7.up.railway.app/`
+
+- Current fullstack app (recommended): [Job Tracker on Vercel](https://job-tracker-danielkamanda.vercel.app/)
